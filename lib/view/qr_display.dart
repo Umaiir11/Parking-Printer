@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../printer_service.dart';
@@ -13,19 +12,71 @@ class QrDisplayView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Generated QR')),
-      body: Column(
+      backgroundColor: NeumorphicTheme.baseColor(context),
+      appBar: NeumorphicAppBar(
+        title: Text(
+          'Generated QR',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Neumorphic(
+                style: NeumorphicStyle(
+                  depth: 5,
+                  intensity: 0.8,
+                  shape: NeumorphicShape.flat,
+                  boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                ),
+                padding: EdgeInsets.all(20),
+                child: Obx(() => QrImageView(
+                  data: vm.qrData.value,
+                  version: QrVersions.auto,
+                  size: 250,
+                  gapless: false,
+                )),
+              ),
+            ),
+            SizedBox(height: 20),
+            _buildNeumorphicButton(
+              text: 'PRINT QR CODE',
+              icon: LucideIcons.printer,
+              onPressed: () => PrinterService.printQr(vm.qrData.value),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// **Neumorphic Button**
+  Widget _buildNeumorphicButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return NeumorphicButton(
+      onPressed: onPressed,
+      style: NeumorphicStyle(
+        depth: 5,
+        intensity: 0.9,
+        shape: NeumorphicShape.concave,
+        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: Obx(() => QrImageView(
-              data: vm.qrData.value,
-              version: QrVersions.auto,
-              size: 300,
-            )),
-          ),
-          ElevatedButton(
-            onPressed: () => PrinterService.printQr(vm.qrData.value),
-            child: Text('PRINT QR CODE'),
+          Icon(icon, size: 20),
+          SizedBox(width: 10),
+          Text(
+            text,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
       ),

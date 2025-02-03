@@ -45,7 +45,8 @@ dependencies:
   esc_pos_utils: any
   intl: ^0.18.1
   get_storage: ^2.1.1
-
+  flutter_neumorphic_plus: ^3.4.0
+  lucide_icons: ^0.257.0
 
 dev_dependencies:
   flutter_test:

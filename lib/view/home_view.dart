@@ -1,8 +1,9 @@
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parkingapp/view/parking_form.dart';
 import 'package:parkingapp/view/scan_view.dart';
-
+import 'package:lucide_icons/lucide_icons.dart';
 import '../view_model/parking_viewmodel.dart';
 
 class HomeView extends StatelessWidget {
@@ -11,24 +12,25 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Parking Manager'),
+      backgroundColor: NeumorphicTheme.baseColor(context),
+      appBar: NeumorphicAppBar(
+        title: Text('Parking Manager', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
+            _neumorphicButton(
               onPressed: () => Get.to(() => ParkingFormView()),
-              child: Text('NEW PARKING'),
-              style: _elevatedButtonStyle(),
+              text: 'NEW PARKING',
+              icon: LucideIcons.parkingCircle,
             ),
             SizedBox(height: 20),
-            ElevatedButton(
+            _neumorphicButton(
               onPressed: () => Get.to(() => ScanView()),
-              child: Text('SCAN QR'),
-              style: _elevatedButtonStyle(),
+              text: 'SCAN QR',
+              icon: LucideIcons.scan,
             ),
           ],
         ),
@@ -36,13 +38,23 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  /// Define a button style method
-  ButtonStyle _elevatedButtonStyle() {
-    return ElevatedButton.styleFrom(
-      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-      textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+  Widget _neumorphicButton({required VoidCallback onPressed, required String text, required IconData icon}) {
+    return NeumorphicButton(
+      onPressed: onPressed,
+      style: NeumorphicStyle(
+        depth: 5,
+        intensity: 0.8,
+        shape: NeumorphicShape.concave,
+        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 24, color: NeumorphicTheme.defaultTextColor(Get.context!)),
+          SizedBox(width: 10),
+          Text(text, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        ],
       ),
     );
   }
