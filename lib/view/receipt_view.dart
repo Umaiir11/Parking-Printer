@@ -1,6 +1,7 @@
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // Import for animations
 
 import '../printer_service.dart';
 import '../view_model/parking_viewmodel.dart';
@@ -24,17 +25,38 @@ class ReceiptView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildReceiptTile('Vehicle Number', vm.currentParking.value.vehicleNumber),
-            _buildReceiptTile('Owner Name', vm.currentParking.value.ownerName),
-            _buildReceiptTile('Phone Number', vm.currentParking.value.phoneNumber),
-            _buildReceiptTile('ID Card Number', vm.currentParking.value.idCardNumber),
+            // Animating each receipt tile
+            _buildReceiptTile('Vehicle Number', vm.currentParking.value.vehicleNumber)
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 800.ms)
+                .slide(begin: Offset(30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+            _buildReceiptTile('Owner Name', vm.currentParking.value.ownerName)
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 600.ms)
+                .slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+            _buildReceiptTile('Phone Number', vm.currentParking.value.phoneNumber)
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 1000.ms)
+                .slide(begin: Offset(30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+            _buildReceiptTile('ID Card Number', vm.currentParking.value.idCardNumber)
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 1200.ms)
+                .slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+            _buildReceiptTile('Parking Duration', vm.currentParking.value.parkingDuration)
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 1400.ms)
+                .slide(begin: Offset(30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+            _buildReceiptTile('Total', vm.currentParking.value.totalAmount.toString())
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 1600.ms)
+                .slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
 
             SizedBox(height: 30),
             _buildNeumorphicButton(
               text: 'PRINT RECEIPT',
               icon: LucideIcons.printer,
               onPressed: () => PrinterService.printReceipt(vm.currentParking.value),
-            ),
+            ).animate().fadeIn(duration: 500.ms, delay: 1800.ms),
           ],
         ),
       ),

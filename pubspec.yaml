@@ -47,6 +47,7 @@ dependencies:
   get_storage: ^2.1.1
   flutter_neumorphic_plus: ^3.4.0
   lucide_icons: ^0.257.0
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:
@@ -86,11 +87,11 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
+  fonts:
+    - family: Orbitron
+      fonts:
+        - asset: assets/Orbitron-Regular.ttf
+        - asset: assets/Orbitron-Bold.ttf
   #         style: italic
   #   - family: Trajan Pro
   #     fonts:

@@ -2,6 +2,7 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../printer_service.dart';
 import '../view_model/parking_viewmodel.dart';
@@ -25,6 +26,7 @@ class QrDisplayView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // QR Code Container with animation
             Expanded(
               child: Neumorphic(
                 style: NeumorphicStyle(
@@ -39,15 +41,17 @@ class QrDisplayView extends StatelessWidget {
                   version: QrVersions.auto,
                   size: 250,
                   gapless: false,
-                )),
+                )).animate().fadeIn(duration: 800.ms).slide(begin: Offset(0, -30), duration: 800.ms, curve: Curves.easeOut),
               ),
             ),
             SizedBox(height: 20),
+
+            // Print Button with fun animation
             _buildNeumorphicButton(
               text: 'PRINT QR CODE',
               icon: LucideIcons.printer,
               onPressed: () => PrinterService.printQr(vm.qrData.value),
-            ),
+            ).animate().scale( duration: 150.ms).then().scale( duration: 150.ms),
           ],
         ),
       ),

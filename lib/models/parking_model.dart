@@ -9,6 +9,7 @@ class ParkingModel {
   String? qrCode;
   double? totalAmount;
   bool? isActive;
+  String? parkingDuration;  // New field to store the duration
 
   ParkingModel({
     this.id,
@@ -21,6 +22,7 @@ class ParkingModel {
     this.qrCode,
     this.totalAmount,
     this.isActive,
+    this.parkingDuration,  // Add parkingDuration to the constructor
   });
 
   // Convert a ParkingModel object to a Map
@@ -36,6 +38,7 @@ class ParkingModel {
       'qrCode': qrCode,
       'totalAmount': totalAmount,
       'isActive': isActive,
+      'parkingDuration': parkingDuration,  // Add parkingDuration to the map
     };
   }
 
@@ -52,6 +55,22 @@ class ParkingModel {
       qrCode: map['qrCode'],
       totalAmount: map['totalAmount'],
       isActive: map['isActive'],
+      parkingDuration: map['parkingDuration'],  // Read parkingDuration from the map
     );
+  }
+
+  // Method to calculate parking duration and update the parkingDuration field
+  String calculateDuration() {
+    if (entryTime == null || exitTime == null) {
+      return 'Duration unavailable';
+    }
+
+    final duration = exitTime!.difference(entryTime!);
+    final days = duration.inDays;
+    final hours = duration.inHours % 24;
+    final minutes = duration.inMinutes % 60;
+
+    // Format the duration as "X hours Y minutes Z days"
+    return '$hours hour${hours != 1 ? 's' : ''} $minutes minute${minutes != 1 ? 's' : ''} ${days > 0 ? '$days day${days > 1 ? 's' : ''}' : ''}'.trim();
   }
 }

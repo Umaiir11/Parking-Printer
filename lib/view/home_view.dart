@@ -5,6 +5,7 @@ import 'package:parkingapp/view/parking_form.dart';
 import 'package:parkingapp/view/scan_view.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../view_model/parking_viewmodel.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class HomeView extends StatelessWidget {
   final ParkingViewModel vm = Get.put(ParkingViewModel());
@@ -19,8 +20,15 @@ class HomeView extends StatelessWidget {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(height: 80),
+            Icon(
+              LucideIcons.bike,
+              size: 100, // Set the size of the icon
+              color: NeumorphicTheme.defaultTextColor(context), // Color of the icon
+            ).animate().fadeIn(duration: 500.ms).slide(begin: Offset(0, -30), duration: 600.ms, curve: Curves.easeOut),
+            SizedBox(height: 80),
+
             _neumorphicButton(
               onPressed: () => Get.to(() => ParkingFormView()),
               text: 'NEW PARKING',
@@ -32,6 +40,7 @@ class HomeView extends StatelessWidget {
               text: 'SCAN QR',
               icon: LucideIcons.scan,
             ),
+            Spacer(flex: 2),
           ],
         ),
       ),
@@ -56,6 +65,6 @@ class HomeView extends StatelessWidget {
           Text(text, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ],
       ),
-    );
+    ).animate().scale( duration: 150.ms).then().scale( duration: 150.ms); // Boom effect
   }
 }

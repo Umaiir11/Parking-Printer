@@ -2,6 +2,7 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../view_model/parking_viewmodel.dart';
 import 'receipt_view.dart';
@@ -40,14 +41,14 @@ class ScanView extends StatelessWidget {
                     }
                   },
                 ),
-              ),
+              ).animate().fadeIn(duration: 600.ms).slide(begin: Offset(0, 30), duration: 600.ms, curve: Curves.easeOut),
             ),
             SizedBox(height: 30),
             _buildNeumorphicButton(
               text: 'Cancel',
               icon: LucideIcons.xCircle,
               onPressed: () => Get.back(),
-            ),
+            ).animate().scale( duration: 150.ms).then().scale( duration: 150.ms), // Fun "boom" effect
           ],
         ),
       ),

@@ -52,6 +52,14 @@ class HomeWrapper extends StatelessWidget {
       ),
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: 'Orbitron',
+          textSelectionTheme: TextSelectionThemeData(
+            cursorColor: Colors.black, // Sets the cursor color to black
+            selectionColor: Colors.grey, // Optional: Selected text background color
+            selectionHandleColor: Colors.black, // Optional: Handle color
+          ),
+        ),
         home: HomeView(),
       ),
     );

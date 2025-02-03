@@ -8,12 +8,16 @@ class PrinterService {
     final generator = Generator(paper, profile);
     List<int> bytes = [];
 
+    // Add the title and styles
     bytes += generator.text('PARKING RECEIPT',
         styles: PosStyles(align: PosAlign.center, bold: true));
     bytes += generator.hr();
+
+    // Add the parking details
     bytes += generator.text('Vehicle: ${parking.vehicleNumber}');
-    bytes += generator.text('Duration: ${_calculateDuration(parking)} days');
+    bytes += generator.text('Duration: ${_calculateDuration(parking)}');
     bytes += generator.text('Total: ₹${parking.totalAmount}');
+
     bytes += generator.feed(2);
     bytes += generator.cut();
 
@@ -21,8 +25,6 @@ class PrinterService {
   }
 
   static Future<void> printQr(String qrData) async {
-    // Implement your QR code printing logic here.
-    // For example, if you generate a QR image and convert it to bytes, use similar steps as below:
     const PaperSize paper = PaperSize.mm80;
     final profile = await CapabilityProfile.load();
     final generator = Generator(paper, profile);
@@ -33,12 +35,10 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.center, bold: true));
     bytes += generator.hr();
 
-    // For demonstration, we're using the QR data string directly.
-    // In a real scenario, you might generate a QR image and then print it.
+    // Print QR data (string representation for now)
     bytes += generator.text(qrData,
         styles: PosStyles(align: PosAlign.center));
 
-    // Feed and cut the receipt
     bytes += generator.feed(2);
     bytes += generator.cut();
 
@@ -46,24 +46,33 @@ class PrinterService {
   }
 
   static Future<void> _sendToPrinter(List<int> bytes) async {
-    // Implement printer connection logic here.
-    // For example, connect via Bluetooth using iTech Goojprt PT210 Bluetooth connection.
+    // Implement printer connection logic here (e.g., Bluetooth connection to the iTech Goojprt PT210).
   }
 
-  /// Calculates the duration of parking in days.
-  /// If [parking.exitTime] is not set, it uses the current time.
-  static int _calculateDuration(ParkingModel parking) {
-    // Ensure your ParkingModel has entryTime and optionally exitTime as DateTime.
+  /// Calculates the parking duration in days, hours, and minutes.
+  static String _calculateDuration(ParkingModel parking) {
     final DateTime start = parking.entryTime ?? DateTime.now();
     final DateTime end = parking.exitTime ?? DateTime.now();
 
-    // Calculate the difference in days.
-    int days = end.difference(start).inDays;
+    final Duration duration = end.difference(start);
 
-    // If the difference is less than 1 day but some time has passed, count it as 1 day.
-    if (days == 0 && end.isAfter(start)) {
-      return 1;
+    // Get days, hours, and minutes from the duration
+    final int days = duration.inDays;
+    final int hours = duration.inHours % 24;
+    final int minutes = duration.inMinutes % 60;
+
+    // Format the result based on duration in days, hours, and minutes
+    String durationStr = '';
+    if (days > 0) {
+      durationStr += '$days day${days > 1 ? 's' : ''} ';
     }
-    return days;
+    if (hours > 0) {
+      durationStr += '$hours hour${hours > 1 ? 's' : ''} ';
+    }
+    if (minutes > 0 || (days == 0 && hours == 0)) {
+      durationStr += '$minutes minute${minutes > 1 ? 's' : ''}';
+    }
+
+    return durationStr.trim();
   }
 }

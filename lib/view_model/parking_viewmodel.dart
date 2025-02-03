@@ -1,6 +1,5 @@
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../models/parking_model.dart';
 import '../parking_repo.dart';
 
@@ -9,10 +8,15 @@ class ParkingViewModel extends GetxController {
   final Rx<ParkingModel> currentParking = ParkingModel().obs;
   final RxString qrData = ''.obs;
   final RxBool isLoading = false.obs;
+  final RxDouble totalAmount = 0.0.obs;
+  final RxString parkingDuration = ''.obs;  // New variable for displaying hours, minutes, and days
+
+  static const double perHourRate = 50.0;
 
   Future<void> createNewParking() async {
     isLoading.value = true;
     try {
+      currentParking.value.entryTime = DateTime.now(); // Set start time
       final id = await _repo.createParking(currentParking.value);
       qrData.value = id;
     } finally {
@@ -24,9 +28,39 @@ class ParkingViewModel extends GetxController {
     isLoading.value = true;
     try {
       await _repo.completeParking(qrData.value);
-      currentParking.value = (await _repo.getParking(qrData.value))!;
+      final parking = await _repo.getParking(qrData.value);
+      if (parking != null) {
+        parking.exitTime = DateTime.now(); // Set end time
+        currentParking.value = parking;
+
+        // Calculate total price
+        totalAmount.value = _calculateTotal(parking.entryTime!, parking.exitTime!);
+
+        // Calculate and update parking duration in hours, minutes, and days
+        parkingDuration.value = _calculateDuration(parking.entryTime!, parking.exitTime!);
+      }
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  double _calculateTotal(DateTime start, DateTime end) {
+    final duration = end.difference(start).inHours;
+    return duration * perHourRate;
+  }
+
+  String _calculateDuration(DateTime start, DateTime end) {
+    final duration = end.difference(start);
+
+    final days = duration.inDays;
+    final hours = duration.inHours % 24; // Get remaining hours after days
+    final minutes = duration.inMinutes % 60; // Get remaining minutes after hours
+
+    // Format the result based on days, hours, and minutes
+    if (days > 0) {
+      return '$hours hours $minutes minute${minutes > 1 ? 's' : ''} $days day${days > 1 ? 's' : ''}';
+    } else {
+      return '$hours hour${hours > 1 ? 's' : ''} $minutes minute${minutes > 1 ? 's' : ''} 0 day';
     }
   }
 }
