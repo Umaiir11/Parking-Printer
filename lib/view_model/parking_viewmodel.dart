@@ -23,26 +23,35 @@ class ParkingViewModel extends GetxController {
       isLoading.value = false;
     }
   }
+  final RxBool isProcessing = false.obs; // Add this in ViewModel
 
-  Future<void> completeParking() async {
+  Future<bool> completeParking() async {
     isLoading.value = true;
     try {
-      await _repo.completeParking(qrData.value);
       final parking = await _repo.getParking(qrData.value);
-      if (parking != null) {
-        parking.exitTime = DateTime.now(); // Set end time
-        currentParking.value = parking;
+      if (parking == null || parking.isActive == false) {
+        return false; // If parking is inactive or doesn't exist, return false
+      }
+
+      await _repo.completeParking(qrData.value);
+
+      final updatedParking = await _repo.getParking(qrData.value);
+      if (updatedParking != null) {
+        updatedParking.exitTime = DateTime.now(); // Set end time
+        currentParking.value = updatedParking;
 
         // Calculate total price
-        totalAmount.value = _calculateTotal(parking.entryTime!, parking.exitTime!);
+        totalAmount.value = _calculateTotal(updatedParking.entryTime!, updatedParking.exitTime!);
 
         // Calculate and update parking duration in hours, minutes, and days
-        parkingDuration.value = _calculateDuration(parking.entryTime!, parking.exitTime!);
+        parkingDuration.value = _calculateDuration(updatedParking.entryTime!, updatedParking.exitTime!);
       }
+      return true;
     } finally {
       isLoading.value = false;
     }
   }
+
 
   double _calculateTotal(DateTime start, DateTime end) {
     final duration = end.difference(start).inHours;

@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../view_model/parking_viewmodel.dart';
+import '../widgets/dialog.dart';
 import 'receipt_view.dart';
 
 class ScanView extends StatelessWidget {
@@ -26,29 +27,60 @@ class ScanView extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: Neumorphic(
-                style: NeumorphicStyle(
-                  depth: -4,
-                  boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(20)),
-                ),
-                child: MobileScanner(
-                  onDetect: (barcodeCapture) async {
-                    final List<Barcode> barcodes = barcodeCapture.barcodes;
-                    if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
-                      vm.qrData.value = barcodes.first.rawValue!;
-                      await vm.completeParking();
-                      Get.to(() => ReceiptView());
-                    }
-                  },
-                ),
-              ).animate().fadeIn(duration: 600.ms).slide(begin: Offset(0, 30), duration: 600.ms, curve: Curves.easeOut),
+              child: Container(
+                constraints: BoxConstraints(minHeight: 200, minWidth: 200), // Ensure valid size
+
+                child: Neumorphic(
+                  style: NeumorphicStyle(
+                    depth: 4, // Avoid negative depth
+                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(20)),
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 300, // Ensure it's not collapsing
+                    child: MobileScanner(
+                      onDetect: (barcodeCapture) async {
+                        if (vm.isProcessing.value) return; // Prevent multiple calls
+                                    
+                        final List<Barcode> barcodes = barcodeCapture.barcodes;
+                        if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
+                          vm.isProcessing.value = true; // Set flag to prevent repeated execution
+                                    
+                          vm.qrData.value = barcodes.first.rawValue!;
+                          bool isActive = await vm.completeParking();
+                                    
+                          if (isActive) {
+                            Get.to(() => ReceiptView())?.then((_) {
+                              vm.isProcessing.value = false; // Reset flag when returning
+                            });
+                          } else {
+                            // Get.snackbar(
+                            //   "QR Expired",
+                            //   "This QR code has expired. Please generate a new one.",
+                            //   snackPosition: SnackPosition.BOTTOM,
+                            //   backgroundColor: Colors.red,
+                            //   colorText: Colors.white,
+                            // );
+
+                            showQRExpiredDialog();
+                            Future.delayed(Duration(seconds: 2), () {
+                              vm.isProcessing.value = false; // Reset flag after a delay
+                            });
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                
+                ).animate().fadeIn(duration: 600.ms).slide(begin: Offset(0, 30), duration: 600.ms, curve: Curves.easeOut),
+              ),
             ),
             SizedBox(height: 30),
             _buildNeumorphicButton(
               text: 'Cancel',
               icon: LucideIcons.xCircle,
               onPressed: () => Get.back(),
-            ).animate().scale( duration: 150.ms).then().scale( duration: 150.ms), // Fun "boom" effect
+            ).animate().scale(duration: 150.ms).then().scale(duration: 150.ms), // Fun "boom" effect
           ],
         ),
       ),
