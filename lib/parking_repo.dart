@@ -8,7 +8,10 @@ class ParkingRepository extends GetxController {
   Future<String> createParking(ParkingModel parking) async {
     parking.entryTime = DateTime.now();
     parking.isActive = true;
+
     final docRef = _firestore.collection('parkings').doc();
+    parking.id = docRef.id;
+
     await docRef.set(parking.toMap());
     return docRef.id;
   }
