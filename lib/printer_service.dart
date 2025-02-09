@@ -12,57 +12,95 @@ class PrinterService {
   Future<void> printReceipt(ParkingModel parking) async {
     final connectedPrinter = _printerController.connectedDevice.value;
     if (connectedPrinter == null) {
-      print("❌ No printer connected.");
+      print("No printer connected.");
       return;
     }
 
     try {
-      const PaperSize paper = PaperSize.mm58;
+      const PaperSize paper = PaperSize.mm80;
       final profile = await CapabilityProfile.load();
       final generator = Generator(paper, profile);
       List<int> bytes = [];
 
-      // 🏢 Optional: Add Company Name or Logo (if printer supports)
-      bytes += generator.text('🚗 Parking Services',
-          styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2));
-      bytes += generator.text('**Thank You for Parking with Us!**',
-          styles: PosStyles(align: PosAlign.center));
+      // Business Header
+      bytes += generator.text(
+        'PARKING RECEIPT',
+        styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
+      );
+      bytes += generator.text(
+        'Thank you for using our services',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+      );
       bytes += generator.hr();
 
-      // 📜 Receipt Details
-      bytes += generator.text('Expire: ${parking.isActive}',
-          styles: PosStyles(align: PosAlign.left, bold: true));
-      bytes += generator.text('Vehicle No: ${parking.vehicleNumber}',
-          styles: PosStyles(align: PosAlign.left));
-      bytes += generator.text('Entry Time: ${parking.entryTime}',
-          styles: PosStyles(align: PosAlign.left));
-      bytes += generator.text('Exit Time: ${parking.exitTime}',
-          styles: PosStyles(align: PosAlign.left));
-      bytes += generator.text('Duration: ${_calculateDuration(parking)}',
-          styles: PosStyles(align: PosAlign.left));
-      bytes += generator.text('Rate: ₹100/hr',
-          styles: PosStyles(align: PosAlign.left));
+      // Receipt Details
+      bytes += generator.text(
+        'Vechile Number: ${parking.vehicleNumber}',
+        styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
+      );
       bytes += generator.hr();
 
-      // 💰 Payment Info
-      bytes += generator.text('Total: ₹${parking.totalAmount}',
-          styles: PosStyles(align: PosAlign.right, bold: true, height: PosTextSize.size2));
-
+      // Parking Information Table
+      bytes += generator.row([
+        PosColumn(text: 'Vehicle Number', width: 6, styles: PosStyles(bold: true)),
+        PosColumn(text: parking.vehicleNumber ?? "N/A", width: 6),
+      ]);
+      bytes += generator.row([
+        PosColumn(text: 'Entry Time', width: 6, styles: PosStyles(bold: true)),
+        PosColumn(text: parking.entryTime.toString(), width: 6),
+      ]);
+      bytes += generator.row([
+        PosColumn(text: 'Exit Time', width: 6, styles: PosStyles(bold: true)),
+        PosColumn(text: parking.exitTime?.toString() ?? 'N/A', width: 6),
+      ]);
+      bytes += generator.row([
+        PosColumn(text: 'Total Duration', width: 6, styles: PosStyles(bold: true)),
+        PosColumn(text: _calculateDuration(parking), width: 6),
+      ]);
+      bytes += generator.row([
+        PosColumn(text: 'Rate Per Hour', width: 6, styles: PosStyles(bold: true)),
+        PosColumn(text: '50 Rs/hr', width: 6),
+      ]);
       bytes += generator.hr();
 
+      // Total Amount
+      bytes += generator.text(
+        'TOTAL AMOUNT: Rs. ${parking.totalAmount}',
+        styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
+      );
+      bytes += generator.hr();
 
+      // Expiry Status
+      bytes += generator.text(
+        'Status: ${parking.isActive == true ? "Active" : "Expired"}',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+      );
+      bytes += generator.hr();
 
-      // 🏁 Footer
-      bytes += generator.text('Powered by Parking App',
-          styles: PosStyles(align: PosAlign.center, bold: true));
+      // Important Notice
+      bytes += generator.text(
+        'Keep this receipt safe. Contact the counter for assistance.',
+        styles: PosStyles(align: PosAlign.center),
+      );
+      bytes += generator.hr();
 
+      // Footer
+      bytes += generator.text(
+        'Powered by Parking App',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+      );
 
-      // Send to printer
-      await _sendToPrinter(bytes);
+      bytes += generator.feed(2);
+      bytes += generator.cut();
+
+      // Send Data to Printer in Chunks
+      await _sendToPrinterInChunks(bytes);
     } catch (e) {
-      print("⚠️ Error while printing receipt: $e");
+      print("Error while printing receipt: $e");
     }
   }
+
+  /// Helper Function to Send Data in Chunks
 
   Future<void> printQrToken(String qrData) async {
     final connectedPrinter = _printerController.connectedDevice.value;
