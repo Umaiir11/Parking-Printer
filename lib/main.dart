@@ -2,10 +2,13 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:parkingapp/view/home_view.dart';
+import 'package:parkingapp/view_model/bt_printers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  Get.put(BTPrintersController(), permanent: true);
+
   runApp(const MyApp());
 }
 

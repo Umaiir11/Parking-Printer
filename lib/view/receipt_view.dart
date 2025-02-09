@@ -55,7 +55,7 @@ class ReceiptView extends StatelessWidget {
             _buildNeumorphicButton(
               text: 'PRINT RECEIPT',
               icon: LucideIcons.printer,
-              onPressed: () => PrinterService.printReceipt(vm.currentParking.value),
+              onPressed: () => PrinterService().printReceipt(vm.currentParking.value),
             ).animate().fadeIn(duration: 500.ms, delay: 1800.ms),
           ],
         ),

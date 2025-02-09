@@ -2,6 +2,7 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parkingapp/view/parking_form.dart';
+import 'package:parkingapp/view/printers_view.dart';
 import 'package:parkingapp/view/scan_view.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../view_model/parking_viewmodel.dart';
@@ -39,6 +40,11 @@ class HomeView extends StatelessWidget {
               onPressed: () => Get.to(() => ScanView()),
               text: 'SCAN QR',
               icon: LucideIcons.scan,
+            ),SizedBox(height: 20),
+            _neumorphicButton(
+              onPressed: () => Get.to(() => PrintersAvailableView()),
+              text: 'Connect Printer',
+              icon: LucideIcons.printer,
             ),
             Spacer(flex: 2),
           ],

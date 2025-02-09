@@ -50,7 +50,7 @@ class QrDisplayView extends StatelessWidget {
             _buildNeumorphicButton(
               text: 'PRINT QR CODE',
               icon: LucideIcons.printer,
-              onPressed: () => PrinterService.printQr(vm.qrData.value),
+              onPressed: () => PrinterService().printQrToken(vm.qrData.value),
             ).animate().scale( duration: 150.ms).then().scale( duration: 150.ms),
           ],
         ),
