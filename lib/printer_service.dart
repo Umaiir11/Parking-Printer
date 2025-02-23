@@ -22,7 +22,7 @@ class PrinterService {
       final generator = Generator(paper, profile);
       List<int> bytes = [];
 
-      // Business Header
+      // 🏢 Business Header
       bytes += generator.text(
         'PARKING RECEIPT',
         styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
@@ -33,14 +33,7 @@ class PrinterService {
       );
       bytes += generator.hr();
 
-      // Receipt Details
-      bytes += generator.text(
-        'Vechile Number: ${parking.vehicleNumber}',
-        styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
-      );
-      bytes += generator.hr();
-
-      // Parking Information Table
+      // 🚗 Vehicle Information
       bytes += generator.row([
         PosColumn(text: 'Vehicle Number', width: 6, styles: PosStyles(bold: true)),
         PosColumn(text: parking.vehicleNumber ?? "N/A", width: 6),
@@ -63,37 +56,53 @@ class PrinterService {
       ]);
       bytes += generator.hr();
 
-      // Total Amount
+      // 💰 Total Amount (Bold & Highlighted)
       bytes += generator.text(
         'TOTAL AMOUNT: Rs. ${parking.totalAmount}',
         styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
       );
       bytes += generator.hr();
 
-      // Expiry Status
+      // ⏳ Status (Active or Expired)
       bytes += generator.text(
         'Status: ${parking.isActive == true ? "Active" : "Expired"}',
         styles: PosStyles(align: PosAlign.center, bold: true),
       );
       bytes += generator.hr();
 
-      // Important Notice
+      // ⚠️ Important Notice
       bytes += generator.text(
         'Keep this receipt safe. Contact the counter for assistance.',
         styles: PosStyles(align: PosAlign.center),
       );
       bytes += generator.hr();
 
-      // Footer
+      // 📞 Contact Number (Bold & Clearly Visible)
       bytes += generator.text(
-        'Powered by Parking App',
+        'For Assistance & Details:',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+      );
+      bytes += generator.text(
+        '+971 54 752 0740',
+        styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
+      );
+
+      bytes += generator.hr();
+
+      // 🌍 Designed & Developed By (Professional Branding)
+      bytes += generator.text(
+        'Designed & Developed by',
+        styles: PosStyles(align: PosAlign.center),
+      );
+      bytes += generator.text(
+        'www.devcruise.co',
         styles: PosStyles(align: PosAlign.center, bold: true),
       );
 
       bytes += generator.feed(2);
       bytes += generator.cut();
 
-      // Send Data to Printer in Chunks
+      // 🔥 Send Data to Printer in Chunks (Prevents Buffer Overload)
       await _sendToPrinterInChunks(bytes);
     } catch (e) {
       print("Error while printing receipt: $e");
@@ -115,7 +124,7 @@ class PrinterService {
       final generator = Generator(paper, profile);
       List<int> bytes = [];
 
-      // 🏢 Title (No emojis, professional)
+      // 🏢 Title (Bold, Large, Centered)
       bytes += generator.text(
         'PARKING TOKEN',
         styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
@@ -130,7 +139,7 @@ class PrinterService {
 
       bytes += generator.hr();
 
-      // 📷 BIGGER QR Code (Maximized to Size 10)
+      // 📷 BIGGER QR Code (Maximized)
       bytes += generator.qrcode(qrData, size: QRSize.Size8);
 
       bytes += generator.hr();
@@ -139,6 +148,30 @@ class PrinterService {
       bytes += generator.text(
         'Without this token, vehicle retrieval is not possible.\nThank you!',
         styles: PosStyles(align: PosAlign.center),
+      );
+
+      bytes += generator.hr();
+
+      // 📞 Contact for Complaints & Queries (Bold & Professional)
+      bytes += generator.text(
+        'For Complaints & Queries:',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+      );
+      bytes += generator.text(
+        '+971 55 661 3239',
+        styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
+      );
+
+      bytes += generator.hr();
+
+      // ⚡ Powered By (Professional Branding)
+      bytes += generator.text(
+        'Designed & Developed by',
+        styles: PosStyles(align: PosAlign.center),
+      );
+      bytes += generator.text(
+        'www.devcruise.co',
+        styles: PosStyles(align: PosAlign.center, bold: true),
       );
 
       bytes += generator.feed(2);

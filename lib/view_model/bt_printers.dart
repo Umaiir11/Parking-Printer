@@ -33,27 +33,44 @@ class BTPrintersController extends GetxController {
   }
 
   /// Start scanning for Bluetooth printers
-  Future<void> scanForPrinters() async {
-    if (isScanning.value) return; // Avoid duplicate scans
+  Future<bool> scanForPrinters() async {
+    if (isScanning.value) return false; // Avoid duplicate scans
 
     bool permissionsGranted = await requestBluetoothPermissions();
-    if (!permissionsGranted) return;
+    if (!permissionsGranted) return false;
+
+    var state = await FlutterBluePlus.adapterState.first; // Check Bluetooth state
+    if (state != BluetoothAdapterState.on) {
+      return false; // Return false if Bluetooth is OFF
+    }
 
     availablePrinters.clear();
     isScanning.value = true;
 
-    FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
+    try {
+      FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
 
-    FlutterBluePlus.scanResults.listen((results) {
-      for (ScanResult r in results) {
-        if (!availablePrinters.any((device) => device.id == r.device.id)) {
-          availablePrinters.add(r.device);
+      FlutterBluePlus.scanResults.listen((results) {
+        for (ScanResult r in results) {
+          if (!availablePrinters.any((device) => device.id == r.device.id)) {
+            availablePrinters.add(r.device);
+          }
         }
-      }
-    });
+      });
 
-    await Future.delayed(Duration(seconds: 5));
-    isScanning.value = false;
+      await Future.delayed(Duration(seconds: 5));
+      return true; // Return true if scanning completes successfully
+    } catch (e) {
+      Get.snackbar(
+        "Scan Failed",
+        "An error occurred while scanning: $e",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false; // Return false if an error occurs
+    } finally {
+      isScanning.value = false;
+    }
   }
 
   /// Connect to selected Bluetooth printer
