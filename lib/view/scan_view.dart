@@ -8,10 +8,23 @@ import '../view_model/parking_viewmodel.dart';
 import '../widgets/dialog.dart';
 import 'receipt_view.dart';
 
-class ScanView extends StatelessWidget {
+class ScanView extends StatefulWidget {
+  @override
+  State<ScanView> createState() => _ScanViewState();
+}
+
+class _ScanViewState extends State<ScanView> {
   final ParkingViewModel vm = Get.find();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    vm.isProcessing.value = false; // Reset flag when returning
+
+  }
+  @override
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: NeumorphicTheme.baseColor(context),
@@ -41,18 +54,22 @@ class ScanView extends StatelessWidget {
                     child: MobileScanner(
                       onDetect: (barcodeCapture) async {
                         if (vm.isProcessing.value) return; // Prevent multiple calls
-                                    
+
                         final List<Barcode> barcodes = barcodeCapture.barcodes;
                         if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
                           vm.isProcessing.value = true; // Set flag to prevent repeated execution
-                                    
+
                           vm.qrData.value = barcodes.first.rawValue!;
                           bool isActive = await vm.completeParking();
-                                    
+
                           if (isActive) {
-                            Get.to(() => ReceiptView())?.then((_) {
-                              vm.isProcessing.value = false; // Reset flag when returning
-                            });
+
+                            await Get.to(() => ReceiptView());
+                            vm.isProcessing.value = false; // Reset flag when returning
+
+                            // Get.to(() => ReceiptView())?.then((_) {
+                            //   vm.isProcessing.value = false; // Reset flag when returning
+                            // });
                           } else {
                             // Get.snackbar(
                             //   "QR Expired",
@@ -71,7 +88,7 @@ class ScanView extends StatelessWidget {
                       },
                     ),
                   ),
-                
+
                 ).animate().fadeIn(duration: 600.ms).slide(begin: Offset(0, 30), duration: 600.ms, curve: Curves.easeOut),
               ),
             ),

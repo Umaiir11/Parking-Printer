@@ -17,7 +17,7 @@
     <!-- Bluetooth Feature Requirement -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
     <application
-        android:label="parkingapp"
+        android:label="Parking Manager"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

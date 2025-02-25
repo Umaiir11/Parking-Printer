@@ -9,11 +9,18 @@ class PrinterService {
   final BTPrintersController _printerController = Get.find<BTPrintersController>();
 
   /// Prints a professional parking receipt
-  Future<void> printReceipt(ParkingModel parking) async {
+  Future<bool> printReceipt(ParkingModel parking) async {
+    // 🚀 Check Bluetooth Adapter State Before Proceeding
+    var state = await FlutterBluePlus.adapterState.first;
+    if (state != BluetoothAdapterState.on) {
+      print("Bluetooth is OFF. Cannot print receipt.");
+      return false;
+    }
+
     final connectedPrinter = _printerController.connectedDevice.value;
     if (connectedPrinter == null) {
       print("No printer connected.");
-      return;
+      return false;
     }
 
     try {
@@ -52,7 +59,7 @@ class PrinterService {
       ]);
       bytes += generator.row([
         PosColumn(text: 'Rate Per Hour', width: 6, styles: PosStyles(bold: true)),
-        PosColumn(text: '50 Rs/hr', width: 6),
+        PosColumn(text: '50 \$ per hour', width: 6),
       ]);
       bytes += generator.hr();
 
@@ -104,18 +111,28 @@ class PrinterService {
 
       // 🔥 Send Data to Printer in Chunks (Prevents Buffer Overload)
       await _sendToPrinterInChunks(bytes);
+
+      return true; // ✅ Successfully printed
     } catch (e) {
       print("Error while printing receipt: $e");
+      return false; // ❌ Failed to print
     }
   }
 
   /// Helper Function to Send Data in Chunks
 
-  Future<void> printQrToken(String qrData) async {
+  Future<bool> printQrToken(String qrData) async {
+    // 🚀 Check Bluetooth Adapter State Before Proceeding
+    var state = await FlutterBluePlus.adapterState.first;
+    if (state != BluetoothAdapterState.on) {
+      print("❌ Bluetooth is OFF. Cannot print QR Token.");
+      return false;
+    }
+
     final connectedPrinter = _printerController.connectedDevice.value;
     if (connectedPrinter == null) {
       print("❌ No printer connected.");
-      return;
+      return false;
     }
 
     try {
@@ -179,8 +196,10 @@ class PrinterService {
 
       // 🔥 Send Data in Chunks (Fix Bluetooth buffer issue)
       await _sendToPrinterInChunks(bytes);
+      return true;
     } catch (e) {
       print("⚠️ Error while printing QR Token: $e");
+      return false;
     }
   }
 

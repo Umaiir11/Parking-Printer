@@ -55,7 +55,27 @@ class ReceiptView extends StatelessWidget {
             _buildNeumorphicButton(
               text: 'PRINT RECEIPT',
               icon: LucideIcons.printer,
-              onPressed: () => PrinterService().printReceipt(vm.currentParking.value),
+              onPressed: () async {
+                bool isPrinted = await PrinterService().printReceipt(vm.currentParking.value);
+
+                if (isPrinted) {
+                  Get.snackbar(
+                    "Success",
+                    "Receipt printed successfully.",
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                  );
+                } else {
+                  Get.snackbar(
+                    "Printer Not Connected",
+                    "Before printing, you must connect a printer from the home screen.",
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                }
+              },
             ).animate().fadeIn(duration: 500.ms, delay: 1800.ms),
           ],
         ),

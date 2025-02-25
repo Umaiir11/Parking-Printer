@@ -50,7 +50,27 @@ class QrDisplayView extends StatelessWidget {
             _buildNeumorphicButton(
               text: 'PRINT QR CODE',
               icon: LucideIcons.printer,
-              onPressed: () => PrinterService().printQrToken(vm.qrData.value),
+              onPressed: () async {
+                bool isPrinted = await PrinterService().printQrToken(vm.qrData.value);
+
+                if (isPrinted) {
+                  Get.snackbar(
+                    "Success",
+                    "QR Token printed successfully.",
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                  );
+                } else {
+                  Get.snackbar(
+                    "Printer Not Connected",
+                    "Before printing, you must connect a printer from the home screen.",
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                }
+              },
             ).animate().scale( duration: 150.ms).then().scale( duration: 150.ms),
           ],
         ),
