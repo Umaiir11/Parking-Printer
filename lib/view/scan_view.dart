@@ -64,7 +64,7 @@ class _ScanViewState extends State<ScanView> {
 
                           if (isActive) {
 
-                            await Get.to(() => ReceiptView());
+                            await Get.off(() => ReceiptView());
                             vm.isProcessing.value = false; // Reset flag when returning
 
                             // Get.to(() => ReceiptView())?.then((_) {

@@ -1,50 +1,91 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:parkingapp/global_variables.dart';
 import '../models/parking_model.dart';
-import '../parking_repo.dart';
+import '../repo/parking_repo.dart';
+import '../repo/parking_stats_repo.dart';
 
 class ParkingViewModel extends GetxController {
-  final ParkingRepository _repo = ParkingRepository();
+  final ParkingRepository _parkingRepo = ParkingRepository();
+  final ParkingStatsRepository _repo = ParkingStatsRepository();
   final Rx<ParkingModel> currentParking = ParkingModel().obs;
+   RxString  perHourPRate =''.obs;
   final RxString qrData = ''.obs;
   final RxBool isLoading = false.obs;
   final RxDouble totalAmount = 0.0.obs;
   final RxString parkingDuration = ''.obs;  // New variable for displaying hours, minutes, and days
+  final RxInt totalSlots = 0.obs;
+  final RxInt totalIn = 0.obs;
+  final RxInt totalOut = 0.obs;
+
+  final RxBool isFetching = false.obs;  // New variable for displaying hours, minutes, and days
+
+  Future<void> fetchParkingStats() async {
+    isFetching.value = true;
+    try {
+      final stats = await _repo.getParkingStats();
+
+      totalSlots.value = stats.totalSlots ?? 22;
+      totalIn.value = stats.totalIn ?? 0;
+      totalOut.value = stats.totalOut ?? 0;
+    } catch (e) {
+      print("Error fetching parking stats: $e");
+    } finally {
+      isFetching.value = false;
+    }
+  }
 
   static const double perHourRate = 50.0;
 
-  Future<void> createNewParking() async {
+
+
+  Future<bool> createNewParking() async {
     isLoading.value = true;
     try {
-      currentParking.value.entryTime = DateTime.now(); // Set start time
-      final id = await _repo.createParking(currentParking.value);
+      final stats = await _repo.getParkingStats();
+
+      if (stats.totalSlots == null || stats.totalSlots <= 0) {
+        return false; // Return false if total slots are null or zero
+      }
+
+      currentParking.value.entryTime = DateTime.now();
+      final id = await _parkingRepo.createParking(currentParking.value);
       qrData.value = id;
+
+      // Update stats (reduce available slots, increase total in)
+      await _repo.updateParkingStats(
+        totalSlots: stats.totalSlots - 1,
+        totalIn: stats.totalIn + 1,
+      );
+
+      return true; // Return true when parking is created successfully
     } finally {
       isLoading.value = false;
     }
   }
-  final RxBool isProcessing = false.obs; // Add this in ViewModel
 
   Future<bool> completeParking() async {
     isLoading.value = true;
     try {
-      final parking = await _repo.getParking(qrData.value);
-      if (parking == null || parking.isActive == false) {
-        return false; // If parking is inactive or doesn't exist, return false
-      }
+      final parking = await _parkingRepo.getParking(qrData.value);
+      if (parking == null || parking.isActive == false) return false;
 
-      await _repo.completeParking(qrData.value);
+      await _parkingRepo.completeParking(qrData.value);
 
-      final updatedParking = await _repo.getParking(qrData.value);
+      final updatedParking = await _parkingRepo.getParking(qrData.value);
       if (updatedParking != null) {
-        updatedParking.exitTime = DateTime.now(); // Set end time
+        updatedParking.exitTime = DateTime.now();
         currentParking.value = updatedParking;
 
-        // Calculate total price
         totalAmount.value = _calculateTotal(updatedParking.entryTime!, updatedParking.exitTime!);
-
-        // Calculate and update parking duration in hours, minutes, and days
         parkingDuration.value = _calculateDuration(updatedParking.entryTime!, updatedParking.exitTime!);
+
+        // Update stats (increase available slots, increase total out)
+        final stats = await _repo.getParkingStats();
+        await _repo.updateParkingStats(
+          totalSlots: stats.totalSlots + 1,
+          totalOut: stats.totalOut + 1,
+        );
       }
       return true;
     } finally {
@@ -53,10 +94,57 @@ class ParkingViewModel extends GetxController {
   }
 
 
+
+
+  // Future<void> createNewParking() async {
+  //   isLoading.value = true;
+  //   try {
+  //     currentParking.value.entryTime = DateTime.now(); // Set start time
+  //     final id = await _repo.createParking(currentParking.value);
+  //     qrData.value = id;
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+  final RxBool isProcessing = false.obs; // Add this in ViewModel
+
+  // Future<bool> completeParking() async {
+  //   isLoading.value = true;
+  //   try {
+  //     final parking = await _repo.getParking(qrData.value);
+  //     if (parking == null || parking.isActive == false) {
+  //       return false; // If parking is inactive or doesn't exist, return false
+  //     }
+  //
+  //     await _repo.completeParking(qrData.value);
+  //
+  //     final updatedParking = await _repo.getParking(qrData.value);
+  //     if (updatedParking != null) {
+  //       updatedParking.exitTime = DateTime.now(); // Set end time
+  //       currentParking.value = updatedParking;
+  //
+  //       // Calculate total price
+  //       totalAmount.value = _calculateTotal(updatedParking.entryTime!, updatedParking.exitTime!);
+  //
+  //       // Calculate and update parking duration in hours, minutes, and days
+  //       parkingDuration.value = _calculateDuration(updatedParking.entryTime!, updatedParking.exitTime!);
+  //     }
+  //     return true;
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+
   double _calculateTotal(DateTime start, DateTime end) {
     final duration = end.difference(start).inHours;
-    return duration * perHourRate;
+
+    // Use perHourRate if perHourPRate is null or empty, otherwise convert perHourPRate to double
+    double rate = (perHourPRate.value.isEmpty) ? perHourRate : double.tryParse(perHourPRate.value) ?? perHourRate;
+GlobalVariables.gbRatePerHour =rate;
+    return duration * rate;
   }
+
 
   String _calculateDuration(DateTime start, DateTime end) {
     final duration = end.difference(start);

@@ -27,7 +27,30 @@ class ParkingFormView extends StatelessWidget {
           child: Column(
             children: [
               _buildAnimatedTextField(
-                icon: LucideIcons.car, // Car Icon
+                keyboardType: TextInputType.number,
+                icon: LucideIcons.user, // User Icon
+                label: 'Rate per hour',
+                onChanged: (v) => vm.perHourPRate.value = v,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5, left: 5, bottom: 5),
+                child: Text(
+                  "If you leave this field empty, the parking per hour rate will be 50 AED.",
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ).animate().scale(duration: 300.ms).fadeIn(duration: 500.ms, delay: 600.ms).slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+              Divider(
+                color: Colors.grey,
+                // Set the color to grey
+                thickness: 1,
+                endIndent: 50,
+                indent: 50,
+                // Adjust thickness if needed
+                height: 20, // Space above and below the divider
+              ).animate().scale(duration: 300.ms).fadeIn(duration: 500.ms, delay: 600.ms).slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+              _buildAnimatedTextField(
+                icon: LucideIcons.car,
+                // Car Icon
                 label: 'Vehicle Number',
                 onChanged: (v) => vm.currentParking.value.vehicleNumber = v,
                 isRequired: true,
@@ -39,7 +62,8 @@ class ParkingFormView extends StatelessWidget {
                 onChanged: (v) => vm.currentParking.value.ownerName = v,
               ),
               _buildAnimatedTextField(
-                icon: LucideIcons.phone, // Phone Icon
+                icon: LucideIcons.phone,
+                // Phone Icon
                 label: 'Phone Number',
                 onChanged: (v) => vm.currentParking.value.phoneNumber = v,
                 isRequired: true,
@@ -52,22 +76,32 @@ class ParkingFormView extends StatelessWidget {
               ),
               SizedBox(height: 20),
               Obx(
-                    () => vm.isLoading.value
+                () => vm.isLoading.value
                     ? NeumorphicProgress(
-                  percent: 0.5,
-                  height: 10,
-                  style: ProgressStyle(depth: 5),
-                ).animate().scale(duration: 400.ms).fadeIn(duration: 500.ms)
+                        percent: 0.5,
+                        height: 10,
+                        style: ProgressStyle(depth: 5),
+                      ).animate().scale(duration: 400.ms).fadeIn(duration: 500.ms)
                     : _buildAnimatedButton(
-                  text: 'GENERATE QR',
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      await vm.createNewParking();
-                      Get.to(() => QrDisplayView());
-                    }
-                  },
-                  icon: LucideIcons.qrCode, // QR Code Icon
-                ).animate().scale(duration: 300.ms).fadeIn(duration: 500.ms, delay: 600.ms).slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+                        text: 'GENERATE QR',
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            bool hasSlots = await vm.createNewParking();
+                            if (hasSlots) {
+                              Get.to(() => QrDisplayView());
+                            } else {
+                              Get.snackbar(
+                                "Parking Full",
+                                "No parking slots available right now.",
+                                snackPosition: SnackPosition.TOP,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                              );
+                            }
+                          }
+                        },
+                        icon: LucideIcons.qrCode, // QR Code Icon
+                      ).animate().scale(duration: 300.ms).fadeIn(duration: 500.ms, delay: 600.ms).slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
               ),
             ],
           ),
@@ -82,6 +116,7 @@ class ParkingFormView extends StatelessWidget {
     required ValueChanged<String> onChanged,
     bool isRequired = false,
     String? errorMsg,
+    TextInputType? keyboardType, // Nullable keyboardType
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -91,8 +126,9 @@ class ParkingFormView extends StatelessWidget {
           intensity: 0.8,
           boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         child: TextFormField(
+          keyboardType: keyboardType, // Nullable: Uses default if not provided
           decoration: InputDecoration(
             border: InputBorder.none,
             labelText: label,
@@ -103,12 +139,10 @@ class ParkingFormView extends StatelessWidget {
             ),
             prefixIcon: Icon(icon, color: NeumorphicTheme.defaultTextColor(Get.context!)), // Icon added here
           ),
-          validator: isRequired
-              ? (value) => value == null || value.isEmpty ? errorMsg : null
-              : null,
+          validator: isRequired ? (value) => value == null || value.isEmpty ? errorMsg : null : null,
           onChanged: onChanged,
         ),
-      ).animate().fadeIn(duration: 500.ms, delay: 300.ms).slide(begin: Offset(30, 0), duration: 500.ms, curve: Curves.easeOutCubic).scale(duration: 300.ms),
+      ).animate().fadeIn(duration: 500.ms, delay: 300.ms).slide(begin: const Offset(30, 0), duration: 500.ms, curve: Curves.easeOutCubic).scale(duration: 300.ms),
     );
   }
 

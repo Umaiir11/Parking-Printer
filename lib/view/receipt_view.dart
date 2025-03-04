@@ -1,12 +1,18 @@
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // Import for animations
 
 import '../printer_service.dart';
 import '../view_model/parking_viewmodel.dart';
 
-class ReceiptView extends StatelessWidget {
+class ReceiptView extends StatefulWidget {
+  @override
+  State<ReceiptView> createState() => _ReceiptViewState();
+}
+
+class _ReceiptViewState extends State<ReceiptView> {
   final ParkingViewModel vm = Get.find();
 
   @override
@@ -38,6 +44,17 @@ class ReceiptView extends StatelessWidget {
                 .animate()
                 .fadeIn(duration: 500.ms, delay: 1000.ms)
                 .slide(begin: Offset(30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+
+            _buildReceiptTile('Entry Time', _formatDate(vm.currentParking.value.entryTime))
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 1000.ms)
+                .slide(begin: Offset(30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+
+            _buildReceiptTile('Exit Time', _formatDate(vm.currentParking.value.exitTime))
+                .animate()
+                .fadeIn(duration: 500.ms, delay: 1000.ms)
+                .slide(begin: Offset(30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+
             _buildReceiptTile('ID Card Number', vm.currentParking.value.idCardNumber)
                 .animate()
                 .fadeIn(duration: 500.ms, delay: 1200.ms)
@@ -104,6 +121,11 @@ class ReceiptView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime? dateTime) {
+    if (dateTime == null) return "--/--/-- --:-- --";
+    return DateFormat("dd/MM/yy - hh:mm a").format(dateTime);
   }
 
   /// **Neumorphic Button**

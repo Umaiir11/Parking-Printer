@@ -2,6 +2,7 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parkingapp/view/parking_form.dart';
+import 'package:parkingapp/view/parking_stats_view.dart';
 import 'package:parkingapp/view/printers_view.dart';
 import 'package:parkingapp/view/scan_view.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -24,11 +25,19 @@ class HomeView extends StatelessWidget {
           children: [
             SizedBox(height: 80),
             Icon(
-              LucideIcons.bike,
+              LucideIcons.car,
               size: 100, // Set the size of the icon
               color: NeumorphicTheme.defaultTextColor(context), // Color of the icon
             ).animate().fadeIn(duration: 500.ms).slide(begin: Offset(0, -30), duration: 600.ms, curve: Curves.easeOut),
-            SizedBox(height: 80),
+            SizedBox(height: 40),
+
+            _neumorphicButton(
+              onPressed: () => Get.to(() => ParkingStatsView()),
+
+              text: 'Stats',
+              icon: LucideIcons.piggyBank,
+            ),
+            SizedBox(height: 20),
 
             _neumorphicButton(
               onPressed: () => Get.to(() => ParkingFormView()),
