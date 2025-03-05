@@ -2,6 +2,7 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parkingapp/view/parking_form.dart';
+import 'package:parkingapp/view/parking_report_view.dart';
 import 'package:parkingapp/view/parking_stats_view.dart';
 import 'package:parkingapp/view/printers_view.dart';
 import 'package:parkingapp/view/scan_view.dart';
@@ -35,7 +36,14 @@ class HomeView extends StatelessWidget {
               onPressed: () => Get.to(() => ParkingStatsView()),
 
               text: 'Stats',
-              icon: LucideIcons.piggyBank,
+              icon: LucideIcons.calculator,
+            ),
+            SizedBox(height: 20),
+            _neumorphicButton(
+              onPressed: () => Get.to(() => MonthlyParkingReportView()),
+
+              text: 'Reporting',
+              icon: LucideIcons.calendar,
             ),
             SizedBox(height: 20),
 

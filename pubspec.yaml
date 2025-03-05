@@ -50,6 +50,7 @@ dependencies:
   flutter_animate: ^4.5.2
   flutter_blue_plus: ^1.35.2
   permission_handler: any
+  fl_chart: ^0.70.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

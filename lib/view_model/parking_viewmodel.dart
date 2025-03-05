@@ -2,10 +2,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:parkingapp/global_variables.dart';
 import '../models/parking_model.dart';
+import '../models/parking_stats.dart';
 import '../repo/parking_repo.dart';
 import '../repo/parking_stats_repo.dart';
 
 class ParkingViewModel extends GetxController {
+  final RxList<Map<String, dynamic>> monthlyReports = <Map<String, dynamic>>[].obs;
+
   final ParkingRepository _parkingRepo = ParkingRepository();
   final ParkingStatsRepository _repo = ParkingStatsRepository();
   final Rx<ParkingModel> currentParking = ParkingModel().obs;
@@ -18,7 +21,23 @@ class ParkingViewModel extends GetxController {
   final RxInt totalIn = 0.obs;
   final RxInt totalOut = 0.obs;
 
-  final RxBool isFetching = false.obs;  // New variable for displaying hours, minutes, and days
+  final RxBool isFetching = false.obs;
+  final RxBool isReportLoading = false.obs;
+  var monthsList = <String>[
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ].obs;
+  var selectedMonth = ''.obs;
+  var reportData = <String, dynamic>{}.obs;
+
+  Future<void> fetchMonthlyData(String month) async {
+    isReportLoading.value = true;
+    selectedMonth.value = month;
+    reportData.value = await _parkingRepo.fetchMonthlyData(month);
+    isReportLoading.value = false;
+  }
+
+
 
   Future<void> fetchParkingStats() async {
     isFetching.value = true;
@@ -35,7 +54,7 @@ class ParkingViewModel extends GetxController {
     }
   }
 
-  static const double perHourRate = 50.0;
+  static const double perHourRate = 5.0;
 
 
 
