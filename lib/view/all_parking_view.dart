@@ -51,7 +51,7 @@ class _AllParkingsViewState extends State<AllParkingsView> {
             ),
             prefixIcon: Icon(icon, color: NeumorphicTheme.defaultTextColor(Get.context!)),
           ),
-          onChanged: onChanged,
+          onChanged: (value) => searchQuery.value = value.trim().toLowerCase(),
         ),
       ).animate()
           .fadeIn(duration: 500.ms, delay: 300.ms)
@@ -78,20 +78,19 @@ class _AllParkingsViewState extends State<AllParkingsView> {
             _buildAnimatedTextField(
               icon: LucideIcons.search,
               label: "Search by Vehicle Number",
-              onChanged: (value) => searchQuery.value = value.toLowerCase(),
+              onChanged: (value) => searchQuery.value = value.trim().toLowerCase(),
             ),
             const SizedBox(height: 10),
             Expanded(
               child: Obx(() {
                 if (vm.isFetchingAllParkings.value) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CupertinoActivityIndicator(radius: 15));
                 }
 
                 final filteredList = vm.parkingList
                     .where((parking) =>
                     (parking.vehicleNumber ?? "").toLowerCase().contains(searchQuery.value))
                     .toList();
-
 
                 if (filteredList.isEmpty) {
                   return Center(
