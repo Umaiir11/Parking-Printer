@@ -203,15 +203,14 @@ class PrinterService {
       );
 
       bytes += generator.hr();
-      bytes += generator.text(
-        'Goshi Chand Wherehouse',
-        styles: PosStyles(align: PosAlign.center, bold: true),
-      );
-      bytes += generator.hr();
 
       // 📞 Contact for Complaints & Queries (Bold & Professional)
       bytes += generator.text(
         'For Complaints & Queries:',
+        styles: PosStyles(align: PosAlign.center, bold: true),
+      );
+      bytes += generator.text(
+        'Goshi Chand Wherehouse',
         styles: PosStyles(align: PosAlign.center, bold: true),
       );
       bytes += generator.text(
