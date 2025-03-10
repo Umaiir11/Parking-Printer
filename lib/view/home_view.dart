@@ -10,6 +10,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../view_model/parking_viewmodel.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import 'all_parking_view.dart';
+
 class HomeView extends StatelessWidget {
   final ParkingViewModel vm = Get.put(ParkingViewModel());
 
@@ -34,7 +36,7 @@ class HomeView extends StatelessWidget {
       'icon': LucideIcons.search,
       'color': Color(0xFFFFFAF5),
       'accentColor': Color(0xFF9C4221),
-      'onTap': () => Get.to(() => ScanView()),
+      'onTap': () => Get.to(() => AllParkingsView()),
     },
     {
       'title': 'Statistics',

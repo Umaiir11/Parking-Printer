@@ -16,6 +16,15 @@ class ParkingRepository extends GetxController {
     await docRef.set(parking.toMap());
     return docRef.id;
   }
+  Future<List<ParkingModel>> fetchAllParkings() async {
+    try {
+      final querySnapshot = await _firestore.collection('parkings').get();
+      return querySnapshot.docs.map((doc) => ParkingModel.fromMap(doc.data())).toList();
+    } catch (e) {
+      print("Error fetching parkings: $e");
+      return [];
+    }
+  }
 
   Future<ParkingModel?> getParking(String qrCode) async {
     final doc = await _firestore.collection('parkings').doc(qrCode).get();

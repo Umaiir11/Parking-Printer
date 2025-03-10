@@ -23,6 +23,7 @@ class ParkingViewModel extends GetxController {
   final RxInt totalOut = 0.obs;
 
   final RxBool isFetching = false.obs;
+  final RxBool isFetchingAllParkings = false.obs;
   final RxBool isReportLoading = false.obs;
   var monthsList = <String>[
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -30,6 +31,20 @@ class ParkingViewModel extends GetxController {
   ].obs;
   var selectedMonth = ''.obs;
   var reportData = <String, dynamic>{}.obs;
+
+  final RxList<ParkingModel> parkingList = <ParkingModel>[].obs;
+
+  Future<void> loadAllParkings() async {
+    isFetchingAllParkings.value = true;
+    try {
+      parkingList.value = await _parkingRepo.fetchAllParkings();
+    } catch (e) {
+      print("Error loading parkings: $e");
+    } finally {
+      isFetchingAllParkings.value = false;
+    }
+  }
+
 
   Future<void> fetchMonthlyData(String month) async {
     isReportLoading.value = true;
