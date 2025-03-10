@@ -13,81 +13,206 @@ import 'package:flutter_animate/flutter_animate.dart';
 class HomeView extends StatelessWidget {
   final ParkingViewModel vm = Get.put(ParkingViewModel());
 
+  // Define feature tiles with their associated properties
+  final List<Map<String, dynamic>> featureTiles = [
+    {
+      'title': 'New Parking',
+      'icon': LucideIcons.parkingCircle,
+      'color': Color(0xFFF5F9FF),
+      'accentColor': Color(0xFF2C5282),
+      'onTap': () => Get.to(() => ParkingFormView()),
+    },
+    {
+      'title': 'Scan QR',
+      'icon': LucideIcons.scan,
+      'color': Color(0xFFF5FFF7),
+      'accentColor': Color(0xFF276749),
+      'onTap': () => Get.to(() => ScanView()),
+    },
+    {
+      'title': 'Search Vehicle',
+      'icon': LucideIcons.search,
+      'color': Color(0xFFFFFAF5),
+      'accentColor': Color(0xFF9C4221),
+      'onTap': () => Get.to(() => ScanView()),
+    },
+    {
+      'title': 'Statistics',
+      'icon': LucideIcons.barChart2,
+      'color': Color(0xFFF5FCFF),
+      'accentColor': Color(0xFF2B6CB0),
+      'onTap': () => Get.to(() => ParkingStatsView()),
+    },
+    {
+      'title': 'Reports',
+      'icon': LucideIcons.fileText,
+      'color': Color(0xFFFAF5FF),
+      'accentColor': Color(0xFF553C9A),
+      'onTap': () => Get.to(() => MonthlyParkingReportView()),
+    },
+    {
+      'title': 'Connect Printer',
+      'icon': LucideIcons.printer,
+      'color': Color(0xFFFFF5F7),
+      'accentColor': Color(0xFF97266D),
+      'onTap': () => Get.to(() => PrintersAvailableView()),
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: NeumorphicTheme.baseColor(context),
+      backgroundColor: Color(0xFFF8FAFC),
       appBar: NeumorphicAppBar(
-        title: Text('Parking Manager', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+            'Parking Manager',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              letterSpacing: 0.5,
+              color: Color(0xFF1A202C),
+            )
+        ),
         centerTitle: true,
+        color: Color(0xFFF8FAFC),
       ),
-      body: Center(
+      body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 80),
-            Icon(
-              LucideIcons.car,
-              size: 100, // Set the size of the icon
-              color: NeumorphicTheme.defaultTextColor(context), // Color of the icon
-            ).animate().fadeIn(duration: 500.ms).slide(begin: Offset(0, -30), duration: 600.ms, curve: Curves.easeOut),
-            SizedBox(height: 40),
-
-            _neumorphicButton(
-              onPressed: () => Get.to(() => ParkingStatsView()),
-
-              text: 'Stats',
-              icon: LucideIcons.calculator,
+            SizedBox(height: 24),
+            // Logo and app name section with subtle animation
+            Center(
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      LucideIcons.car,
+                      size: 48,
+                      color: Color(0xFF2D3748),
+                    ),
+                  ).animate()
+                      .fadeIn(duration: 800.ms, curve: Curves.easeOut),
+                  SizedBox(height: 12),
+                ],
+              ),
+            ),
+            // Feature grid with refined styling and fixed overflow
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GridView.builder(
+                  physics: BouncingScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 20,
+                    mainAxisSpacing: 20,
+                    childAspectRatio: 1.0, // Adjusted ratio to prevent overflow
+                  ),
+                  itemCount: featureTiles.length,
+                  itemBuilder: (context, index) {
+                    return _buildFeatureTile(
+                      context: context,
+                      title: featureTiles[index]['title'],
+                      icon: featureTiles[index]['icon'],
+                      color: featureTiles[index]['color'],
+                      accentColor: featureTiles[index]['accentColor'],
+                      onTap: featureTiles[index]['onTap'],
+                      index: index,
+                    );
+                  },
+                ),
+              ),
             ),
             SizedBox(height: 20),
-            _neumorphicButton(
-              onPressed: () => Get.to(() => MonthlyParkingReportView()),
-
-              text: 'Reporting',
-              icon: LucideIcons.calendar,
-            ),
-            SizedBox(height: 20),
-
-            _neumorphicButton(
-              onPressed: () => Get.to(() => ParkingFormView()),
-              text: 'NEW PARKING',
-              icon: LucideIcons.parkingCircle,
-            ),
-            SizedBox(height: 20),
-            _neumorphicButton(
-              onPressed: () => Get.to(() => ScanView()),
-              text: 'SCAN QR',
-              icon: LucideIcons.scan,
-            ),SizedBox(height: 20),
-            _neumorphicButton(
-              onPressed: () => Get.to(() => PrintersAvailableView()),
-              text: 'Connect Printer',
-              icon: LucideIcons.printer,
-            ),
-            Spacer(flex: 2),
           ],
         ),
       ),
     );
   }
 
-  Widget _neumorphicButton({required VoidCallback onPressed, required String text, required IconData icon}) {
-    return NeumorphicButton(
-      onPressed: onPressed,
-      style: NeumorphicStyle(
-        depth: 5,
-        intensity: 0.8,
-        shape: NeumorphicShape.concave,
-        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 24, color: NeumorphicTheme.defaultTextColor(Get.context!)),
-          SizedBox(width: 10),
-          Text(text, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+  Widget _buildFeatureTile({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required Color color,
+    required Color accentColor,
+    required VoidCallback onTap,
+    required int index,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
-    ).animate().scale( duration: 150.ms).then().scale( duration: 150.ms); // Boom effect
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            splashColor: accentColor.withOpacity(0.08),
+            highlightColor: accentColor.withOpacity(0.04),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 26,
+                      color: accentColor,
+                    ),
+                  ).animate()
+                      .fadeIn(duration: 1000.ms, delay: 150.ms * index),
+                  SizedBox(height: 12), // Reduced vertical spacing
+                  // Wrapped in Flexible to handle overflow
+                  Flexible(
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      maxLines: 2, // Allow two lines for longer text
+                      overflow: TextOverflow.ellipsis, // Handle any remaining overflow
+                      style: TextStyle(
+                        fontSize: 14, // Slightly smaller font
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF2D3748),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    ).animate()
+        .fadeIn(delay: 100.ms * index, duration: 800.ms)
+        .slideY(begin: 0.05, end: 0, delay: 100.ms * index, duration: 800.ms, curve: Curves.easeOutQuint);
   }
 }

@@ -35,7 +35,7 @@ class ParkingFormView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 5, left: 5, bottom: 5),
                 child: Text(
-                  "If you leave this field empty, the parking per hour rate will be 50 AED.",
+                  "If you leave this field empty, the parking per hour rate will be 5 AED.",
                   style: TextStyle(color: Colors.red, fontSize: 12),
                 ),
               ).animate().scale(duration: 300.ms).fadeIn(duration: 500.ms, delay: 600.ms).slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
@@ -66,8 +66,6 @@ class ParkingFormView extends StatelessWidget {
                 // Phone Icon
                 label: 'Phone Number',
                 onChanged: (v) => vm.currentParking.value.phoneNumber = v,
-                isRequired: true,
-                errorMsg: 'Phone number is required',
               ),
               _buildAnimatedTextField(
                 icon: LucideIcons.badgeCheck, // ID Card Icon
@@ -76,32 +74,32 @@ class ParkingFormView extends StatelessWidget {
               ),
               SizedBox(height: 20),
               Obx(
-                () => vm.isLoading.value
+                    () => vm.isLoading.value
                     ? NeumorphicProgress(
-                        percent: 0.5,
-                        height: 10,
-                        style: ProgressStyle(depth: 5),
-                      ).animate().scale(duration: 400.ms).fadeIn(duration: 500.ms)
+                  percent: 0.5,
+                  height: 10,
+                  style: ProgressStyle(depth: 5),
+                ).animate().scale(duration: 400.ms).fadeIn(duration: 500.ms)
                     : _buildAnimatedButton(
-                        text: 'GENERATE QR',
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            bool hasSlots = await vm.createNewParking();
-                            if (hasSlots) {
-                              Get.to(() => QrDisplayView());
-                            } else {
-                              Get.snackbar(
-                                "Parking Full",
-                                "No parking slots available right now.",
-                                snackPosition: SnackPosition.TOP,
-                                backgroundColor: Colors.red,
-                                colorText: Colors.white,
-                              );
-                            }
-                          }
-                        },
-                        icon: LucideIcons.qrCode, // QR Code Icon
-                      ).animate().scale(duration: 300.ms).fadeIn(duration: 500.ms, delay: 600.ms).slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
+                  text: 'GENERATE QR',
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      bool hasSlots = await vm.createNewParking();
+                      if (hasSlots) {
+                        Get.to(() => QrDisplayView());
+                      } else {
+                        Get.snackbar(
+                          "Parking Full",
+                          "No parking slots available right now.",
+                          snackPosition: SnackPosition.TOP,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                        );
+                      }
+                    }
+                  },
+                  icon: LucideIcons.qrCode, // QR Code Icon
+                ).animate().scale(duration: 300.ms).fadeIn(duration: 500.ms, delay: 600.ms).slide(begin: Offset(-30, 0), duration: 500.ms, curve: Curves.easeOutCubic),
               ),
             ],
           ),

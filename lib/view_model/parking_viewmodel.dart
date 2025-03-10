@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:parkingapp/global_variables.dart';
+import 'package:uuid/uuid.dart';
 import '../models/parking_model.dart';
 import '../models/parking_stats.dart';
 import '../repo/parking_repo.dart';
@@ -58,6 +59,32 @@ class ParkingViewModel extends GetxController {
 
 
 
+  // Future<bool> createNewParking() async {
+  //   isLoading.value = true;
+  //   try {
+  //     final stats = await _repo.getParkingStats();
+  //
+  //     if (stats.totalSlots == null || stats.totalSlots <= 0) {
+  //       return false; // Return false if total slots are null or zero
+  //     }
+  //
+  //     currentParking.value.entryTime = DateTime.now();
+  //     final id = await _parkingRepo.createParking(currentParking.value);
+  //     qrData.value = id;
+  //
+  //     // Update stats (reduce available slots, increase total in)
+  //     await _repo.updateParkingStats(
+  //       totalSlots: stats.totalSlots - 1,
+  //       totalIn: stats.totalIn + 1,
+  //     );
+  //
+  //     return true; // Return true when parking is created successfully
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+
   Future<bool> createNewParking() async {
     isLoading.value = true;
     try {
@@ -67,21 +94,42 @@ class ParkingViewModel extends GetxController {
         return false; // Return false if total slots are null or zero
       }
 
-      currentParking.value.entryTime = DateTime.now();
-      final id = await _parkingRepo.createParking(currentParking.value);
-      qrData.value = id;
+      // Generate Unique ID
+      final String parkingId = const Uuid().v4();
 
-      // Update stats (reduce available slots, increase total in)
+      // Set entry time
+      currentParking.value.entryTime = DateTime.now();
+
+      // Generate QR Code using the unique parking ID
+      final String qrCode = "QR_$parkingId";
+      qrData.value = qrCode;
+
+      double rate = (perHourPRate.value.isEmpty) ? 5.0 : double.tryParse(perHourPRate.value) ?? 5.0;
+      GlobalVariables.gbRatePerHour = rate;
+      currentParking.value.id = parkingId;
+      currentParking.value.qrCode = qrCode;
+      currentParking.value.totalAmount = rate;
+      totalAmount.value =rate;
+      final storedId = await _parkingRepo.createParking(currentParking.value);
+
+      if (storedId == null) {
+        return false;
+      }
+
+      // Update parking stats
       await _repo.updateParkingStats(
         totalSlots: stats.totalSlots - 1,
         totalIn: stats.totalIn + 1,
       );
 
-      return true; // Return true when parking is created successfully
+      return true; // Parking successfully created
     } finally {
       isLoading.value = false;
     }
   }
+
+
+
 
   Future<bool> completeParking() async {
     isLoading.value = true;

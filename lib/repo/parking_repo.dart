@@ -56,19 +56,21 @@ class ParkingRepository extends GetxController {
       final data = doc.data();
       final entryTime = (data['entryTime'] as Timestamp).toDate();
       final exitTime = data['exitTime'] != null ? (data['exitTime'] as Timestamp).toDate() : null;
+      final totalAmount = (data['totalAmount'] ?? 0.0).toDouble();
 
-      // Extract month name
-      String docMonth = DateFormat('MMMM').format(entryTime); // Example: "August"
+      // Extract month name from entry time
+      String docMonth = DateFormat('MMMM').format(entryTime);
 
       if (docMonth == monthKey) {
         report['totalSlots'] += 1;
         report['totalIn'] += 1;
+        report['totalEarnings'] += totalAmount; // ✅ Always add earnings
+
+        final day = entryTime.day.toString();
+        report['dailyEarnings'][day] = (report['dailyEarnings'][day] ?? 0.0) + totalAmount;
+
         if (exitTime != null) {
           report['totalOut'] += 1;
-          report['totalEarnings'] += (data['totalAmount'] ?? 0.0);
-
-          final day = exitTime.day.toString();
-          report['dailyEarnings'][day] = (report['dailyEarnings'][day] ?? 0) + (data['totalAmount'] ?? 0.0);
         }
       }
     }

@@ -89,52 +89,79 @@ class _MonthlyParkingReportViewState extends State<MonthlyParkingReportView> {
       PieChartSectionData(
         color: Colors.blueAccent,
         value: (report['totalSlots'] ?? 0).toDouble(),
-        title: 'Parkings',
-        radius: 50,
+        title: 'P',
+        titleStyle: TextStyle(
+          fontSize: 14, // Smaller but readable
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        radius: 55,
       ),
       PieChartSectionData(
         color: Colors.green,
         value: (report['totalIn'] ?? 0).toDouble(),
-        title: 'Entries',
-        radius: 45,
+        title: 'E',
+        titleStyle: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        radius: 50,
       ),
       PieChartSectionData(
         color: Colors.redAccent,
         value: (report['totalOut'] ?? 0).toDouble(),
-        title: 'Exits',
-        radius: 40,
+        title: 'X',
+        titleStyle: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        radius: 48,
       ),
       PieChartSectionData(
         color: Colors.orange,
         value: (report['totalEarnings'] ?? 0).toDouble(),
-        title: 'Earnings',
-        radius: 55,
+        title: 'AED',
+        titleStyle: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        radius: 60,
       ),
     ];
 
     return Container(
-      height: 300,
-      padding: EdgeInsets.all(16),
+      height: 320, // Slightly bigger for a premium look
+      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: Offset(0, 3))],
+        boxShadow: [BoxShadow(color: Colors.grey.shade200, blurRadius: 8, offset: Offset(0, 4))],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Parking Summary", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Text(
+              "Parking Overview",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+          ),
+          SizedBox(height: 12),
           Expanded(
             child: PieChart(
               PieChartData(
                 sections: sections,
                 borderData: FlBorderData(show: false),
-                sectionsSpace: 2,
-                centerSpaceRadius: 40,
+                sectionsSpace: 3,
+                centerSpaceRadius: 45, // More spacing for a clean look
               ),
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 8),
           _buildLegend(),
         ],
       ),
@@ -177,7 +204,7 @@ class _MonthlyParkingReportViewState extends State<MonthlyParkingReportView> {
             _buildDetailRow('Total Parkings', report['totalSlots'].toString()),
             _buildDetailRow('Total Entries', report['totalIn'].toString()),
             _buildDetailRow('Total Exits', report['totalOut'].toString()),
-            _buildDetailRow('Total Earnings', "Rs. ${report['totalEarnings'].toStringAsFixed(2)}"),
+            _buildDetailRow('Total Earnings', "AED. ${report['totalEarnings'].toStringAsFixed(2)}"),
           ],
         ),
       );
