@@ -9,9 +9,12 @@ class ParkingModel {
   String? qrCode;
   double? totalAmount;
   bool? isActive;
-  String? parkingDuration;  // New field to store the duration
+  String? parkingDuration;
+  double? amountPerHour; // New field for the per-hour parking rate
+
 
   ParkingModel({
+    this.amountPerHour,
     this.id,
     this.vehicleNumber,
     this.ownerName,
@@ -39,6 +42,7 @@ class ParkingModel {
       'totalAmount': totalAmount,
       'isActive': isActive,
       'parkingDuration': parkingDuration,  // Add parkingDuration to the map
+      'amountPerHour': amountPerHour,  // Add parkingDuration to the map
     };
   }
 
@@ -55,6 +59,7 @@ class ParkingModel {
       qrCode: map['qrCode'],
       totalAmount: map['totalAmount'],
       isActive: map['isActive'],
+      amountPerHour: map['amountPerHour'],
       parkingDuration: map['parkingDuration'],  // Read parkingDuration from the map
     );
   }

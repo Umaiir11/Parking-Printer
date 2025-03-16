@@ -27,23 +27,39 @@ class ParkingRepository extends GetxController {
   }
 
   Future<ParkingModel?> getParking(String qrCode) async {
-    final doc = await _firestore.collection('parkings').doc(qrCode).get();
-    return doc.exists ? ParkingModel.fromMap(doc.data()!) : null;
+    final querySnapshot = await _firestore
+        .collection('parkings')
+        .where('qrCode', isEqualTo: qrCode)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final doc = querySnapshot.docs.first;
+      return ParkingModel.fromMap(doc.data());
+    } else {
+      return null;
+    }
   }
 
-  Future<void> completeParking(String qrCode) async {
-    final doc = await _firestore.collection('parkings').doc(qrCode).get();
-    if (!doc.exists) return;
 
-    final parking = ParkingModel.fromMap(doc.data()!);
+  Future<void> completeParking(String qrCode) async {
+    final querySnapshot = await _firestore
+        .collection('parkings')
+        .where('qrCode', isEqualTo: qrCode)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) return;
+
+    final doc = querySnapshot.docs.first;
+    final parking = ParkingModel.fromMap(doc.data());
     final exitTime = DateTime.now();
 
-    // Calculate the total amount and parking duration
-    final totalAmount = _calculateTotal(parking.entryTime!, exitTime);
+    // Use model’s per-hour rate dynamically
+    final totalAmount = _calculateTotal(parking.entryTime!, exitTime, parking.totalAmount?? 0);
     final parkingDuration = _calculateDuration(parking.entryTime!, exitTime);
 
-    // Update the Firestore document with exit time, total amount, isActive status, and parking duration
-    await _firestore.collection('parkings').doc(qrCode).update({
+    await doc.reference.update({
       'exitTime': exitTime,
       'isActive': false,
       'totalAmount': totalAmount,
@@ -66,29 +82,43 @@ class ParkingRepository extends GetxController {
       final entryTime = (data['entryTime'] as Timestamp).toDate();
       final exitTime = data['exitTime'] != null ? (data['exitTime'] as Timestamp).toDate() : null;
       final totalAmount = (data['totalAmount'] ?? 0.0).toDouble();
+      final isActive = data['isActive'] ?? true;
 
-      // Extract month name from entry time
       String docMonth = DateFormat('MMMM').format(entryTime);
 
       if (docMonth == monthKey) {
         report['totalSlots'] += 1;
         report['totalIn'] += 1;
-        report['totalEarnings'] += totalAmount; // ✅ Always add earnings
+        report['totalEarnings'] += totalAmount;
 
         final day = entryTime.day.toString();
         report['dailyEarnings'][day] = (report['dailyEarnings'][day] ?? 0.0) + totalAmount;
 
-        if (exitTime != null) {
+        if (exitTime != null && isActive == false) {
           report['totalOut'] += 1;
         }
       }
     }
+
     return report;
   }
-  double _calculateTotal(DateTime entryTime, DateTime exitTime) {
-    final duration = exitTime.difference(entryTime).inHours;
-    return duration * 100.0; // Rs. 100 per hour
+  double _calculateTotal(DateTime entryTime, DateTime exitTime, double amountPerHour) {
+    final totalMinutes = exitTime.difference(entryTime).inMinutes;
+
+    if (totalMinutes <= 0) return amountPerHour; // Fallback for invalid case
+
+    if (totalMinutes <= 60) {
+      return amountPerHour; // Charge full 1st hour only
+    } else {
+      int extraMinutes = totalMinutes - 60;
+      double perMinuteRate = amountPerHour / 60;
+      double extraCharge = extraMinutes * perMinuteRate;
+      double total = amountPerHour + extraCharge;
+      return total; // No rounding
+    }
   }
+
+
 
   String _calculateDuration(DateTime entryTime, DateTime exitTime) {
     final duration = exitTime.difference(entryTime);

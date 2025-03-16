@@ -112,7 +112,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.center, bold: true),
       );
       bytes += generator.text(
-        '+971 55 661 3239',
+        '+971 54 752 0740',
         styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
       );
 
@@ -214,7 +214,7 @@ class PrinterService {
         styles: PosStyles(align: PosAlign.center, bold: true),
       );
       bytes += generator.text(
-        '+971 54 752 0740',
+        '+971 55 661 3239',
         styles: PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2),
       );
       bytes += generator.feed(2);

@@ -123,6 +123,7 @@ class ParkingViewModel extends GetxController {
       GlobalVariables.gbRatePerHour = rate;
       currentParking.value.id = parkingId;
       currentParking.value.qrCode = qrCode;
+      currentParking.value.amountPerHour = rate;
       currentParking.value.totalAmount = rate;
       totalAmount.value =rate;
       final storedId = await _parkingRepo.createParking(currentParking.value);
